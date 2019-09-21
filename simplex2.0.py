@@ -6,16 +6,6 @@ Created on Sat Sep 21 11:54:56 2019
 """
 import numpy as np
 
-A = [[1,0,1],
-     [0,1,0],
-     [0,1,1]]
-
-
-A = [[1,0,1,1],
-     [-2,1,-1,0],
-     [0,0,1,0]]
-
-
 A = [[1,1,1],
      [-2,1,-1],
      [0,3,1]]
@@ -91,12 +81,6 @@ def preprocessing(A,b,c,sig):
 def phase_1(A,b,base_index,c,artificial_var):
    
     A = A.squeeze()
-    
-    if type(b) != np.ndarray:
-        b = np.array(b,np.float)
-    if type(c) != np.ndarray:
-        c = np.array(c,np.float)
-        
     #    print(c[base_index])
     Cb = c[base_index]
     #    print(Cb)
@@ -105,9 +89,6 @@ def phase_1(A,b,base_index,c,artificial_var):
     sigma = c - z
     
     while sigma.max() > 0:
-    
-        flag = 0
-
 
         max_col = sigma.argmax()
     #    max_col = (sigma>0).argmax()
@@ -228,7 +209,6 @@ def simplex(A,b,c,sig):
     #preprocessing
     A,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig)
     
-    
     #phase 1
     
     c1 = np.zeros_like(c,dtype=np.float)
@@ -252,17 +232,6 @@ def simplex(A,b,c,sig):
     return opt_solution,opt_val
     
 
-
 if __name__ == '__main__':
     opt_sol,opt_val = simplex(A,b,c,sig)
 
-
-
-
-
-
-
-
-
-
-    
