@@ -227,7 +227,7 @@ def simplex(A,b,c,sig,opt='max'):
              [0,3,1]]
         b = [4,1,9]
         c = [-3,0,1]
-        sig = [-1,1,0]        
+        sig = [-1,1,0]
     '''
     #preprocessing
     A,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig,opt)
