@@ -6,12 +6,6 @@ Created on Sat Sep 21 11:54:56 2019
 """
 import numpy as np
 
-A = [[1,1,1],
-     [-2,1,-1],
-     [0,3,1]]
-b = [4,1,9]
-c = [-3,0,1]
-sig = [-1,1,0]
 
 def preprocessing(A,b,c,sig):
     
@@ -19,7 +13,24 @@ def preprocessing(A,b,c,sig):
         A = np.array(A,dtype = np.float)
     if type(b) != np.ndarray:
         b = np.array(b,np.float)
-            
+    #判断格式合法
+    if A.shape[0] !=len(b):
+        print(r'size of A does not match with b.')
+        
+    elif A.shape[0] !=len(sig):
+        print(r'size of A does not match with sig.')
+        return [None]*6
+        
+    elif A.shape[1] < len(c):
+        print(r'size of A does not match with c.')        
+        
+    for i in range(len(b)):
+        if b[i]<0:
+            b[i] = -b[i]
+            A[i] = -A[i]
+            sig[i] = -sig[i]
+        
+    
     E = np.eye(A.shape[0],dtype = np.float)
     base_index = np.full(A.shape[0],-1)
     uv_loc=[]
@@ -33,7 +44,6 @@ def preprocessing(A,b,c,sig):
         base_index[i]=j
     
     need = base_index==-1
-    #need = np.where(base_index==-1)
     
     artificial_var = []
     ori_var = [i for i in range(A.shape[1])]
@@ -81,17 +91,15 @@ def preprocessing(A,b,c,sig):
 def phase_1(A,b,base_index,c,artificial_var):
    
     A = A.squeeze()
-    #    print(c[base_index])
     Cb = c[base_index]
-    #    print(Cb)
-    #    print(A)
     z = np.array([np.sum(Cb*A[:,i]) for i in range(A.shape[1])])
     sigma = c - z
     
     while sigma.max() > 0:
-
-        max_col = sigma.argmax()
-    #    max_col = (sigma>0).argmax()
+        
+            #防止循环
+#        max_col = sigma.argmax()
+        max_col = (sigma>0).argmax()
         theta = b/A[:,max_col]
         #防止出现0/0情况
         for i in range(A.shape[0]):
@@ -114,7 +122,9 @@ def phase_1(A,b,base_index,c,artificial_var):
                 min_row = theta.argmin()
             else:
                 min_row = np.array(l).argmax()
-#            min_row = theta.argmin()
+                
+            #防止循环
+            min_row = theta.argmin()
 
             #更新A,b
             pivot = A[min_row,max_col]
@@ -131,7 +141,6 @@ def phase_1(A,b,base_index,c,artificial_var):
             base_index[min_row] = max_col
             Cb[min_row] = c[max_col]
 
-        
         z = np.array([np.sum(Cb*A[:,i]) for i in range(A.shape[1])])
         sigma = c - z
 
@@ -162,8 +171,8 @@ def phase_2(A,b,base_index,c2):
                     return None
 
         #entering var
-        max_col = sigma.argmax()
-    #    max_col = (sigma>0).argmax()
+#        max_col = sigma.argmax()
+        max_col = (sigma>0).argmax()
         theta = np.zeros_like(b,dtype=np.float)
         
         for i in range(A.shape[0]):
@@ -209,29 +218,59 @@ def simplex(A,b,c,sig):
     #preprocessing
     A,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig)
     
-    #phase 1
-    
-    c1 = np.zeros_like(c,dtype=np.float)
-    c1[artificial_var] = -1
-    A,b,base_index = phase_1(A,b,base_index,c1,artificial_var)
-    
-    #phase 2
     if A is None:
         return None,None
-    c2 = c[ori_var]
-    A = A[:,[ori_var]]
-    A = A.squeeze()
     
-    opt_solution = phase_2(A,b,base_index,c2)
+    #判断
+    if len(artificial_var):
+    #phase 1
     
-    if opt_solution is None:
-        return None,np.inf
-    
-    
-    opt_val = np.sum(opt_solution*c2)
-    return opt_solution,opt_val
+        c1 = np.zeros_like(c,dtype=np.float)
+        c1[artificial_var] = -1
+        
+        A,b,base_index = phase_1(A,b,base_index,c1,artificial_var)
+        
+        #phase 2
+        if A is None:
+            return None,None
+        c2 = c[ori_var]
+        A = A[:,[ori_var]]
+        A = A.squeeze()
+        
+        opt_solution = phase_2(A,b,base_index,c2)
+        
+        if opt_solution is None:
+            return None,np.inf
+        
+        
+        opt_val = np.sum(opt_solution*c2)
+        return opt_solution,opt_val
+    else:
+        
+        opt_solution = phase_2(A,b,base_index,c)
+        
+        if opt_solution is None:
+            return None,np.inf
+        
+        opt_val = np.sum(opt_solution*c)
+        return opt_solution,opt_val        
     
 
 if __name__ == '__main__':
+    
+        
+    A = [[1,1,1],
+         [-2,1,-1],
+         [0,3,1]]
+    b = [4,1,9]
+    c = [-3,0,1]
+    sig = [-1,1,0]
+    
+    A=[[1,0,0,0.25,-8,-1,9],[0,1,0,0.5,-12,-0.5,3],[0,0,-1,0,0,-1,0]]
+    b=[0,0,-1]
+    c=[0,0,0,0.75,-20,0.5,-6]
+    sig=[0,0]
+
+    
     opt_sol,opt_val = simplex(A,b,c,sig)
 
