@@ -7,7 +7,7 @@ Created on Sat Sep 21 11:54:56 2019
 import numpy as np
 
 
-def preprocessing(A,b,c,sig):
+def preprocessing(A,b,c,sig,opt='max'):
     
     if type(A) !=np.ndarray:
         A = np.array(A,dtype = np.float)
@@ -29,7 +29,8 @@ def preprocessing(A,b,c,sig):
             b[i] = -b[i]
             A[i] = -A[i]
             sig[i] = -sig[i]
-        
+    if opt != 'max':
+        c = [-i for i in c]
     
     E = np.eye(A.shape[0],dtype = np.float)
     base_index = np.full(A.shape[0],-1)
@@ -213,10 +214,23 @@ def phase_2(A,b,base_index,c2):
         
 
 
-def simplex(A,b,c,sig):
-    
+def simplex(A,b,c,sig,opt='max'):
+    '''
+        b: RHS
+        c: profit
+        sig: comparison symbol, use 1,0,-1 to represent >=, =, <=
+        opt: a str in {'max','min'}
+        e.g.
+        
+        A = [[1,1,1],
+             [-2,1,-1],
+             [0,3,1]]
+        b = [4,1,9]
+        c = [-3,0,1]
+        sig = [-1,1,0]        
+    '''
     #preprocessing
-    A,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig)
+    A,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig,opt)
     
     if A is None:
         return None,None
@@ -270,7 +284,12 @@ if __name__ == '__main__':
     b=[0,0,-1]
     c=[0,0,0,0.75,-20,0.5,-6]
     sig=[0,0]
-
     
-    opt_sol,opt_val = simplex(A,b,c,sig)
+    A=[[1,1,2,1,3],
+       [2,-1,3,1,1]]
+    b=[4,3]
+    c=[2,3,5,2,3]
+    sig=[1,1]
+    
+    opt_sol,opt_val = simplex(A,b,c,sig,'min')
 
