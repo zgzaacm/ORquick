@@ -50,9 +50,9 @@ class LinearProgramming():
         self.c = c
         self.sig = sig
         self.opt = opt
-        self.scope=scope
+        self.scope = scope
         self.cal = False
-        self.ifdual=False
+        self.ifdual = False
         
     def SimPlex(self):
         
@@ -94,7 +94,7 @@ class LinearProgramming():
         
         self.CreatDual()
         if self.dual.cal == True:
-           self.opt_sol, self.opt_val = primal_dual(self.dual, self)
+            self.opt_sol, self.opt_val = primal_dual(self.dual, self)
            
         else:
             self.dual.cal = True
@@ -118,7 +118,7 @@ if __name__ == '__main__':
     b=[8, 6, 6, 9]
     c=[2, 4, 1, 1]
     sig=[-1, -1, -1, -1]
-    scope=[0., 0., 0., 0.]
+    scope=[1., 1., 1., 1.]
     
     llp=LinearProgramming(A,b,c,sig,scope)
         

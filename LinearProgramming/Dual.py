@@ -13,6 +13,7 @@ def primal_dual(prim,dual):
     row_de = index[prim.opt_sol == 0]
     col_de = index[(prim.A @ prim.opt_sol.T - prim.b) != 0]
     
+    
     Arg = np.hstack((dual.A, dual.b[:,np.newaxis]))
     Arg = np.delete(Arg, row_de, axis=0)
     Arg = np.delete(Arg, col_de, axis=1) 

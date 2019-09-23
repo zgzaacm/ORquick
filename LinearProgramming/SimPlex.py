@@ -209,7 +209,7 @@ def phase_2(A,b,base_index,c2):
 
 def simplex(LP):
     
-    A,b,c,sig,scope,opt=LP.A,LP.b,LP.c,LP.sig,LP.scope,LP.opt
+    A,b,c,sig,scope,opt=LP.A,LP.b.copy(),LP.c,LP.sig,LP.scope,LP.opt
     #preprocessing
     A_,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig,scope,opt)
     
