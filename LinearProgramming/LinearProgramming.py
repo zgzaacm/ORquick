@@ -79,24 +79,48 @@ class LinearProgramming():
         
         self.CreatDual()
         if self.cal == True:
-           self.dual_sol, self.dual_val = primal_dual(self, self.dual)
+           self.dual.opt_sol, self.dual.opt_val = primal_dual(self, self.dual)
            
         else:
             self.cal = True
             self.opt_sol = np.array(opt_sol, np.float)
             self.opt_val = self.c @ self.opt_sol
-            self.dual_sol, self.dual_val = primal_dual(self, self.dual)
+            self.dual.opt_sol, self.dual.opt_val = primal_dual(self, self.dual)
+            self.dual.cal = True
         
-        return self.dual_sol, self.dual_val
+        return self.dual.opt_sol, self.dual.opt_val
+    
+    def Dual_Primal(self,opt_sol=None):
         
+        self.CreatDual()
+        if self.dual.cal == True:
+           self.opt_sol, self.opt_val = primal_dual(self.dual, self)
+           
+        else:
+            self.dual.cal = True
+            self.dual.opt_sol = np.array(opt_sol, np.float)
+            self.dual.opt_val = self.dual.c @ self.dual.opt_sol
+            self.opt_sol, self.opt_val = primal_dual(self.dual, self)      
+            
+        return self.opt_sol, self.opt_val
+    
     def DualSimplex(self):
         
         
         self.opt_sol, self.opt_val = dualsp(self)
         
         return self.opt_sol, self.opt_val
-        
-        
+    
+    
+if __name__ == '__main__':
+    
+    A=[[1, 3, 0, 1], [2, 1, 0, 0], [0, 1, 1, 1], [1, 1, 1, 0]]
+    b=[8, 6, 6, 9]
+    c=[2, 4, 1, 1]
+    sig=[-1, -1, -1, -1]
+    scope=[0., 0., 0., 0.]
+    
+    llp=LinearProgramming(A,b,c,sig,scope)
         
         
         

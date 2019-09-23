@@ -24,6 +24,7 @@ def primal_dual(prim,dual):
     
     return y, dual.c @ y
     
-    
+def dualsp(lp):
+    pass
     
     
