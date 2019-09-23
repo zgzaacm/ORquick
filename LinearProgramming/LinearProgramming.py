@@ -5,8 +5,8 @@ Created on Mon Sep 23 18:24:16 2019
 @author: Dell
 """
 import numpy as np
-from SimPlex import simplex 
-from Dual import primal_dual
+from SimPlex import simplex,preprocessing
+from Dual import primal_dual,dualsp
 class LinearProgramming():
     '''
         b: RHS
@@ -28,13 +28,13 @@ class LinearProgramming():
         
     '''
     
-    def __init__(self, A, b, c, sig, scope=None, opt='max'):
+    def __init__(self, A, b, c, sig, scope, opt='max'):
         
         A = np.array(A, np.float)
         b = np.array(b, np.float)
         c = np.array(c, np.float)
         sig = np.array(sig, np.float)
-#        scope = np.array(scope,np.float)
+        scope = np.array(scope, np.float)
             
         if A.shape[0] != len(b):
             raise ValueError(r'size of A does not match with b.')
@@ -42,7 +42,7 @@ class LinearProgramming():
             raise ValueError(r'size of A does not match with sig.')
         elif A.shape[1] < len(c):
             raise ValueError(r'size of A does not match with c.')
-        elif A.shape[1] != len(sig):
+        elif A.shape[1] != len(scope):
             raise ValueError(r'size of A does not match with x\'scope.')
             
         self.A = A
@@ -50,8 +50,9 @@ class LinearProgramming():
         self.c = c
         self.sig = sig
         self.opt = opt
-#        self.scope=scope
+        self.scope=scope
         self.cal = False
+        self.ifdual=False
         
     def SimPlex(self):
         
@@ -62,16 +63,21 @@ class LinearProgramming():
     
     def CreatDual(self):
         
+        if self.ifdual:
+            return
         
-        if self.opt == 'max':
-            self.dual = LinearProgramming(self.A.T, self.c, self.b, -self.sig, opt='min')
-        else:
-            self.dual = LinearProgramming(self.A.T, self.c, self.b, -self.sig, opt='max')
+        self.dual = LinearProgramming(self.A.T, self.c, self.b, self.scope, -self.sig)
+        self.dual.opt = 'min' if self.opt == 'max' else 'max'
+        self.dual.dual = self
+        
+        self.dual.ifdual = True
+        self.ifdual = True
             
-        return self.Dual
+        return self.dual
         
-    def Primal_Dual(self,opt_sol):
+    def Primal_Dual(self,opt_sol=None):
         
+        self.CreatDual()
         if self.cal == True:
            self.dual_sol, self.dual_val = primal_dual(self, self.dual)
            
@@ -83,7 +89,12 @@ class LinearProgramming():
         
         return self.dual_sol, self.dual_val
         
-    
+    def DualSimplex(self):
+        
+        
+        self.opt_sol, self.opt_val = dualsp(self)
+        
+        return self.opt_sol, self.opt_val
         
         
         
