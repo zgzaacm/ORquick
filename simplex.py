@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Sep 21 11:54:56 2019
+Created on Mon Sep 23 21:04:03 2019
 
 @author: Lenovo
 """
+
 import numpy as np
 
 
-def preprocessing(A,b,c,sig,opt='max'):
+def preprocessing(A,b,c,sig,scope = None,opt='max'):
+
+    
     
     if type(A) !=np.ndarray:
         A = np.array(A,dtype = np.float)
@@ -31,7 +34,17 @@ def preprocessing(A,b,c,sig,opt='max'):
             sig[i] = -sig[i]
     if opt != 'max':
         c = [-i for i in c]
-    
+        
+    if scope is not None:
+        for i in range(len(scope)):
+            if scope[i] == 0:
+
+                neg_vec=(-A[:,i]).reshape(len(b),1)
+                
+                A = np.concatenate((A,neg_vec),axis=1)
+            elif scope[i] == -1:
+                A[:,i] = -A[:,i]
+                
     E = np.eye(A.shape[0],dtype = np.float)
     base_index = np.full(A.shape[0],-1)
     uv_loc=[]
@@ -90,7 +103,7 @@ def preprocessing(A,b,c,sig,opt='max'):
 
 
 def phase_1(A,b,base_index,c,artificial_var):
-   
+
     A = A.squeeze()
     Cb = c[base_index]
     z = np.array([np.sum(Cb*A[:,i]) for i in range(A.shape[1])])
@@ -156,6 +169,7 @@ def phase_1(A,b,base_index,c,artificial_var):
 
 
 def phase_2(A,b,base_index,c2):
+
     Cb = c2[base_index]
     
     z = np.array([np.sum(Cb*A[:,i]) for i in range(A.shape[1])])
@@ -214,7 +228,7 @@ def phase_2(A,b,base_index,c2):
         
 
 
-def simplex(A,b,c,sig,opt='max'):
+def simplex(A,b,c,sig,scope = None,opt='max'):
     '''
         b: RHS
         c: profit
@@ -233,9 +247,15 @@ def simplex(A,b,c,sig,opt='max'):
         >>>opt_sol,opt_val = simplex(A,b,c,sig,'min')
     '''
     #preprocessing
-    A,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig,opt)
+    if type(A) !=np.ndarray:
+        A = np.array(A,dtype = np.float)
+    A_,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig,scope,opt)
     
-    if A is None:
+    if scope is None:
+        scope = [1 for _ in range(A.shape[1])]
+    
+    
+    if A_ is None:
         return None,None
     
     #判断
@@ -245,16 +265,24 @@ def simplex(A,b,c,sig,opt='max'):
         c1 = np.zeros_like(c,dtype=np.float)
         c1[artificial_var] = -1
         
-        A,b,base_index = phase_1(A,b,base_index,c1,artificial_var)
+        A_,b,base_index = phase_1(A_,b,base_index,c1,artificial_var)
         
         #phase 2
-        if A is None:
+        if A_ is None:
             return None,None
-        c2 = c[ori_var]
-        A = A[:,[ori_var]]
-        A = A.squeeze()
         
-        opt_solution = phase_2(A,b,base_index,c2)
+        
+        for i in range(len(base_index)):
+            for j in range(len(artificial_var)):
+                if(base_index[i]>artificial_var[j]):
+                    base_index[i] -= 1
+                            
+        c2 = c[ori_var]
+
+        A_ = A_[:,[ori_var]]
+        A_ = A_.squeeze()
+        
+        opt_solution = phase_2(A_,b,base_index,c2)
         
         if opt_solution is None and opt=='min':
             return None,-np.inf
@@ -263,6 +291,19 @@ def simplex(A,b,c,sig,opt='max'):
         
         
         opt_val = np.sum(opt_solution*c2)
+#---------------------------------------------------        
+        count = 0
+        for i in range(len(scope)):
+            if scope[i] == -1:
+                opt_solution[i] = -opt_solution[i]
+            elif scope[i] == 0:
+                opt_solution[i] -= opt_solution[A.shape[1]+count]
+                c += 1
+        opt_solution = opt_solution[0:A.shape[1]]
+#---------------------------------------------------        
+            
+        
+        
         
         if opt=='min':
             return opt_solution,-opt_val
@@ -270,13 +311,26 @@ def simplex(A,b,c,sig,opt='max'):
             return opt_solution,opt_val
             
     else:
-        
-        opt_solution = phase_2(A,b,base_index,c)
+        print('fcukckasdjlafsadf')
+        opt_solution = phase_2(A_,b,base_index,c)
         
         if opt_solution is None:
             return None,np.inf
         
         opt_val = np.sum(opt_solution*c)
+        
+        
+#---------------------------------------------------        
+        count = 0
+        for i in range(len(scope)):
+            if scope[i] == -1:
+                opt_solution[i] = -opt_solution[i]
+            elif scope[i] == 0:
+                opt_solution[i] -= opt_solution[A.shape[1]+count]
+                c += 1
+        opt_solution = opt_solution[0:A.shape[1]]
+#---------------------------------------------------        
+                    
         
         if opt=='min':
             return opt_solution,-opt_val
@@ -302,18 +356,28 @@ if __name__ == '__main__':
     c=[2,3,5,2,3]
     sig=[1,1]
     
+    
+    c = [2,-1,2]
+    A = [[-1,1,1],
+         [-1,1,-1]]
+    b=[4,6]
+    sig = [0,-1]
+    scope = [-1,1,0]
     A = [[1,1,1],
          [-2,1,-1],
          [0,3,1]]
     b = [4,1,9]
     c = [-3,0,1]
-    sig = [-1,1,0]    
+    sig = [-1,1,0]
+
     
     A=[[2,1],
        [-3,2],
        [1,1]]
     b=[5,3,3]
     c=[20,15]
-    sig=[1,-1,1]    
-    opt_sol,opt_val = simplex(A,b,c,sig,'min')
+    scope = [1,1]
+    sig=[1,-1,1]
+    
+    opt_sol,opt_val = simplex(A,b,c,sig,None,'min')
 
