@@ -220,14 +220,17 @@ def simplex(A,b,c,sig,opt='max'):
         c: profit
         sig: comparison symbol, use 1,0,-1 to represent >=, =, <=
         opt: a str in {'max','min'}
-        e.g.
         
-        A = [[1,1,1],
-             [-2,1,-1],
-             [0,3,1]]
-        b = [4,1,9]
-        c = [-3,0,1]
-        sig = [-1,1,0]
+        
+        e.g.:
+        >>>A = [[2,1],
+               [-3,2],
+               [1,1]]
+        >>>b = [5,3,3]
+        >>>c = [20,15]
+        >>>sig = [1,-1,1]  
+        
+        >>>opt_sol,opt_val = simplex(A,b,c,sig,'min')
     '''
     #preprocessing
     A,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig,opt)
@@ -253,12 +256,19 @@ def simplex(A,b,c,sig,opt='max'):
         
         opt_solution = phase_2(A,b,base_index,c2)
         
-        if opt_solution is None:
+        if opt_solution is None and opt=='min':
+            return None,-np.inf
+        elif opt_solution is None and opt=='max':
             return None,np.inf
         
         
         opt_val = np.sum(opt_solution*c2)
-        return opt_solution,opt_val
+        
+        if opt=='min':
+            return opt_solution,-opt_val
+        else:
+            return opt_solution,opt_val
+            
     else:
         
         opt_solution = phase_2(A,b,base_index,c)
@@ -267,23 +277,24 @@ def simplex(A,b,c,sig,opt='max'):
             return None,np.inf
         
         opt_val = np.sum(opt_solution*c)
-        return opt_solution,opt_val        
-    
+        
+        if opt=='min':
+            return opt_solution,-opt_val
+        else:
+            return opt_solution,opt_val   
 
 if __name__ == '__main__':
     
         
-    A = [[1,1,1],
-         [-2,1,-1],
-         [0,3,1]]
-    b = [4,1,9]
-    c = [-3,0,1]
-    sig = [-1,1,0]
+
     
     A=[[1,0,0,0.25,-8,-1,9],[0,1,0,0.5,-12,-0.5,3],[0,0,-1,0,0,-1,0]]
     b=[0,0,-1]
     c=[0,0,0,0.75,-20,0.5,-6]
     sig=[0,0]
+    
+
+
     
     A=[[1,1,2,1,3],
        [2,-1,3,1,1]]
@@ -291,5 +302,18 @@ if __name__ == '__main__':
     c=[2,3,5,2,3]
     sig=[1,1]
     
+    A = [[1,1,1],
+         [-2,1,-1],
+         [0,3,1]]
+    b = [4,1,9]
+    c = [-3,0,1]
+    sig = [-1,1,0]    
+    
+    A=[[2,1],
+       [-3,2],
+       [1,1]]
+    b=[5,3,3]
+    c=[20,15]
+    sig=[1,-1,1]    
     opt_sol,opt_val = simplex(A,b,c,sig,'min')
 
