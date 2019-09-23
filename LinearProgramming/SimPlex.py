@@ -7,7 +7,7 @@ Created on Sat Sep 21 11:54:56 2019
 import numpy as np
 
 
-def preprocessing(A,b,c,sig,opt='max'):
+def preprocessing(A,b,c,sig,scope = None,opt='max'):
         
     for i in range(len(b)):
         if b[i]<0:
@@ -16,6 +16,17 @@ def preprocessing(A,b,c,sig,opt='max'):
             sig[i] = -sig[i]
     if opt != 'max':
         c = [-i for i in c]
+#-------------------------------------------------
+    if scope is not None:
+        for i in range(len(scope)):
+            if scope[i] == 0:
+
+                neg_vec=(-A[:,i]).reshape(len(b),1)
+                
+                A = np.concatenate((A,neg_vec),axis=1)
+            elif scope[i] == -1:
+                A[:,i] = -A[:,i]
+#-------------------------------------------------
     
     E = np.eye(A.shape[0],dtype = np.float)
     base_index = np.full(A.shape[0],-1)
@@ -198,13 +209,17 @@ def phase_2(A,b,base_index,c2):
 
 def simplex(LP):
     
-    A,b,c,sig,opt=LP.A,LP.b,LP.c,LP.sig,LP.opt
+    A,b,c,sig,scope,opt=LP.A,LP.b,LP.c,LP.sig,LP.scope,LP.opt
     #preprocessing
-    A,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig,opt)
+    A_,b,c,base_index,artificial_var,ori_var = preprocessing(A,b,c,sig,scope,opt)
     
-    if A is None:
-        return None,None
+
     
+    if scope is None:
+        scope = [1 for _ in range(A_.shape[1])]
+        
+    if A_ is None:
+        return None,None        
     #判断
     if len(artificial_var):
     #phase 1
@@ -212,16 +227,27 @@ def simplex(LP):
         c1 = np.zeros_like(c,dtype=np.float)
         c1[artificial_var] = -1
         
-        A,b,base_index = phase_1(A,b,base_index,c1,artificial_var)
+        A_,b,base_index = phase_1(A_,b,base_index,c1,artificial_var)
         
         #phase 2
-        if A is None:
+        if A_ is None:
             return None,None
-        c2 = c[ori_var]
-        A = A[:,[ori_var]]
-        A = A.squeeze()
         
-        opt_solution = phase_2(A,b,base_index,c2)
+        
+#-----------------------------------------------------
+        for i in range(len(base_index)):
+            for j in range(len(artificial_var)):
+                if(base_index[i]>artificial_var[j]):
+                    base_index[i] -= 1
+                    
+#-----------------------------------------------------        
+        
+        c2 = c[ori_var]
+
+        A_ = A_[:,[ori_var]]
+        A_ = A_.squeeze()
+        
+        opt_solution = phase_2(A_,b,base_index,c2)
         
         if opt_solution is None and opt=='min':
             return None,-np.inf
@@ -230,25 +256,46 @@ def simplex(LP):
         
         
         opt_val = np.sum(opt_solution*c2)
-        
+#---------------------------------------------------        
+        count = 0
+        for i in range(len(scope)):
+            if scope[i] == -1:
+                opt_solution[i] = -opt_solution[i]
+            elif scope[i] == 0:
+                opt_solution[i] -= opt_solution[A.shape[1]+count]
+                c += 1
+        opt_solution = opt_solution[0:A.shape[1]]
+#---------------------------------------------------        
         if opt=='min':
             return opt_solution,-opt_val
         else:
             return opt_solution,opt_val
             
     else:
-        
-        opt_solution = phase_2(A,b,base_index,c)
+        opt_solution = phase_2(A_,b,base_index,c)
         
         if opt_solution is None:
             return None,np.inf
         
         opt_val = np.sum(opt_solution*c)
         
+        
+#---------------------------------------------------        
+        count = 0
+        for i in range(len(scope)):
+            if scope[i] == -1:
+                opt_solution[i] = -opt_solution[i]
+            elif scope[i] == 0:
+                opt_solution[i] -= opt_solution[A.shape[1]+count]
+                c += 1
+        opt_solution = opt_solution[0:A.shape[1]]
+#---------------------------------------------------        
+                    
+        
         if opt=='min':
             return opt_solution,-opt_val
         else:
-            return opt_solution,opt_val   
+            return opt_solution,opt_val
 
 #if __name__ == '__main__':
 #    
