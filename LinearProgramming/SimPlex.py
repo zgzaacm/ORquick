@@ -26,7 +26,6 @@ def simplex(LPP):
         
         #phase 2
         if base_index is None:
-            print('fuick')
             return None,None
         
 #-----------------------------------------------------

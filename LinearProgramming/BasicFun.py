@@ -6,7 +6,44 @@ Created on Wed Sep 25 12:52:12 2019
 """
 import numpy as np
 
+def preprocessing(LP):
+#---------------------------------------------    
+    if LP.scope is not None:
+        for i in range(len(LP.scope)):
+            if LP.scope[i] == 0:
+
+                neg_vec=(-LP.A[:,i]).reshape(len(LP.b),1)
+                
+                LP.A = np.concatenate((LP.A,neg_vec),axis=1)
+            elif LP.scope[i] == -1:
+                LP.A[:,i] = -LP.A[:,i]
+            
+#---------------------------------------------        
+
+    E = np.eye(LP.A.shape[0],dtype = np.float)
+    uv_loc=[]
+    
+    for i in range(LP.A.shape[0]):
+        for j in range(LP.A.shape[1]):
+            if (E[:,i] == LP.A[:,j]).all():
+                uv_loc.append((i,j))
+            elif (E[:,i] == -LP.A[:,j]).all():
+                LP.A[i,:] = -LP.A[i,:]
+                LP.sig[i] = -LP.sig[i]
+                LP.b[i] = -LP.b[i]
+                uv_loc.append((i,j))
+    base_index = np.array(len(uv_loc),np.float)
+
+    for i,j in uv_loc:
+        base_index[i]=j
+
+    return LP,base_index
+
+
+
+
 def standardform(LP):
+    #
     for i in range(len(LP.b)):
         if LP.b[i] < 0:
             LP.b[i] = -LP.b[i]
