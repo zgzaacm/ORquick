@@ -5,6 +5,8 @@ Created on Mon Sep 23 19:08:00 2019
 @author: Dell
 """
 import numpy as np
+import copy 
+from BasicFun import phase,standardform,CheckBasic
 from scipy.linalg import solve
 
 def primal_dual(prim,dual):
@@ -25,7 +27,40 @@ def primal_dual(prim,dual):
     
     return y, dual.c @ y
     
-def dualsp(lp):
-    pass
+def dualsimplex(LPP):
+    
+    LP = copy.copy(LPP)
+    
+    LP = standardform(LP)
+    base_index = CheckBasic(LP)
+    if len(base_index) != LP.A.shape[0]:
+        print("problem not fit dualsimplex")
+        return None, None
+    
+    LP, base_index, opt_solution = phase('dual', LP, base_index, LP.c)
+    
+    if base_index is None:
+        return None,None
+    
+    opt_solution = opt_solution[0:LP.A.shape[1]]
+    
+    return opt_solution, opt_solution @ LP.c
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     

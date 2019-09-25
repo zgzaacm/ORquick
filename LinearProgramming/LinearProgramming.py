@@ -5,8 +5,9 @@ Created on Mon Sep 23 18:24:16 2019
 @author: Dell
 """
 import numpy as np
-from SimPlex import simplex,preprocessing
-from Dual import primal_dual,dualsp
+from SimPlex import simplex
+from Dual import primal_dual,dualsimplex
+
 class LinearProgramming():
     '''
         b: RHS
@@ -28,12 +29,15 @@ class LinearProgramming():
         
     '''
     
-    def __init__(self, A, b, c, sig, scope, opt='max'):
+    def __init__(self, A, b, c, sig, scope=None, opt='max'):
         
         A = np.array(A, np.float)
         b = np.array(b, np.float)
         c = np.array(c, np.float)
         sig = np.array(sig, np.float)
+        
+        if scope is None:
+            scope = np.ones(A.shape[1])
         scope = np.array(scope, np.float)
             
         if A.shape[0] != len(b):
@@ -107,20 +111,39 @@ class LinearProgramming():
     def DualSimplex(self):
         
         
-        self.opt_sol, self.opt_val = dualsp(self)
+        self.opt_sol, self.opt_val = dualsimplex(self)
         
         return self.opt_sol, self.opt_val
     
     
 if __name__ == '__main__':
-    
-    A=[[1, 3, 0, 1], [2, 1, 0, 0], [0, 1, 1, 1], [1, 1, 1, 0]]
-    b=[8, 6, 6, 9]
-    c=[2, 4, 1, 1]
-    sig=[-1, -1, -1, -1]
-    scope=[1., 1., 1., 1.]
-    
-    llp=LinearProgramming(A,b,c,sig,scope)
+#    
+#    A=[[1,0,0,0.25,-8,-1,9],[0,1,0,0.5,-12,-0.5,3],[0,0,-1,0,0,-1,0]]
+#    b=[0,0,-1]
+#    c=[0,0,0,0.75,-20,0.5,-6]
+#    sig=[0,0,0]
+#    
+#    A = [[1,1,1],
+#         [-2,1,-1],
+#         [0,3,1]]
+#    b = [4,1,9]
+#    c = [-3,0,1]
+#    sig = [-1,1,0]  
+#    A=[[1,1,2,1,3],
+#       [2,-1,3,1,1]]
+#    b=[4,3]
+#    c=[2,3,5,2,3]
+#    sig=[1,1]
+#    A=[[1,1],[5,3]]
+#    b=[4,8]
+#    c=[3,5]
+#    sig=[-1,1]
+    A = [[0,6,1],[5,2,1]]
+    b=[2,1]
+    c=[15,24,5]
+    sig=[1,1]
+    opt='min'
+    llp=LinearProgramming(A,b,c,sig,opt=opt)
         
         
         
