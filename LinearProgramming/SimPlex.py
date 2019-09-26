@@ -26,7 +26,7 @@ def simplex(LPP):
 
         # phase 2
         if base_index is None:
-            return None, None, None
+            return None, None, None, None
 
         # -----------------------------------------------------
         for i in range(len(base_index)):
@@ -44,9 +44,9 @@ def simplex(LPP):
         LP, base_index, opt_solution = phase('origin', LP, base_index, c2)
 
         if opt_solution is None and LP.opt == 'min':
-            return None, -np.inf, base_index
+            return None, -np.inf, base_index, LP.A
         elif opt_solution is None and LP.opt == 'max':
-            return None, np.inf, base_index
+            return None, np.inf, base_index, LP.A
 
         opt_val = np.sum(opt_solution * c2)
         # ---------------------------------------------------
@@ -61,9 +61,9 @@ def simplex(LPP):
         opt_solution = opt_solution[0:LP.A.shape[1]]
         # ---------------------------------------------------
         if LP.opt == 'min':
-            return opt_solution, -opt_val, base_index
+            return opt_solution, -opt_val, base_index, LP.A
         else:
-            return opt_solution, opt_val, base_index
+            return opt_solution, opt_val, base_index, LP.A
 
     else:
         LP, base_index, opt_solution = phase('origin', LP, base_index, LP.c)
@@ -86,6 +86,6 @@ def simplex(LPP):
         # ---------------------------------------------------
 
         if LP.opt == 'min':
-            return opt_solution, -opt_val, base_index
+            return opt_solution, -opt_val, base_index, LP.A
         else:
-            return opt_solution, opt_val, base_index
+            return opt_solution, opt_val, base_index, LP.A

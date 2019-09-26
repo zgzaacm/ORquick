@@ -57,13 +57,14 @@ class LinearProgramming():
         self.opt = opt
         self.scope = scope
         self.base_index = None
+        self.last_A = None
         self.cal = False
         self.ifdual = False
 
     def SimPlex(self):
 
         if self.cal == False:
-            self.opt_sol, self.opt_val, self.base_index = simplex(self)
+            self.opt_sol, self.opt_val, self.base_index , self.last_A = simplex(self)
             self.cal = True
 
         return self.opt_sol, self.opt_val
