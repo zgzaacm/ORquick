@@ -17,11 +17,23 @@ def preprocessing(LP):
                 LP.A = np.concatenate((LP.A,neg_vec),axis=1)
             elif LP.scope[i] == -1:
                 LP.A[:,i] = -LP.A[:,i]
-            
+
 #---------------------------------------------        
 
     E = np.eye(LP.A.shape[0],dtype = np.float)
     uv_loc=[]
+    
+    #加松弛变量
+    for i in range(LP.A.shape[0]):
+        if LP.sig >0:
+            vec = np.zeros((LP.A.shape[0],1))
+            vec[i] = -1.0
+            LP.A = np.concatenate((LP.A,vec),axis=1)          
+        elif LP.sig<0:
+            vec = np.zeros((LP.A.shape[0],1))
+            vec[i] = 1.0
+            LP.A = np.concatenate((LP.A,vec),axis=1)
+
     
     for i in range(LP.A.shape[0]):
         for j in range(LP.A.shape[1]):
