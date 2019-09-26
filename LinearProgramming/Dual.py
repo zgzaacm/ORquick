@@ -6,7 +6,7 @@ Created on Mon Sep 23 19:08:00 2019
 """
 import numpy as np
 import copy 
-from BasicFun import phase,standardform,CheckBasic
+from BasicFun import phase,preprocessing
 from scipy.linalg import solve
 
 def primal_dual(prim,dual):
@@ -31,9 +31,20 @@ def dualsimplex(LPP):
     
     LP = copy.copy(LPP)
     
-    LP = standardform(LP)
-    base_index = CheckBasic(LP)
+    LP,base_index = preprocessing(LP)
+    
     if len(base_index) != LP.A.shape[0]:
+        print("problem not fit dualsimplex")
+        return None, None
+    print(base_index)
+    print(type(base_index))
+    print(list(base_index))
+    print(LP.c)
+    base_index = base_index.squeeze()
+    Cb = LP.c[base_index.astype(int)]
+    z = np.array([np.sum(Cb*LP.A[:,i]) for i in range(LP.A.shape[1])])
+    sigma = LP.c - z
+    if sigma.max() > 0:
         print("problem not fit dualsimplex")
         return None, None
     

@@ -143,6 +143,8 @@ if __name__ == '__main__':
     c=[15,24,5]
     sig=[1,1]
     opt='min'
+    
+    
     llp=LinearProgramming(A,b,c,sig,opt=opt)
         
         

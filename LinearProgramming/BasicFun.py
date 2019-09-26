@@ -7,6 +7,10 @@ Created on Wed Sep 25 12:52:12 2019
 import numpy as np
 
 def preprocessing(LP):
+    if LP.opt != 'max':
+        LP.c = [-i for i in LP.c]
+        
+    
 #---------------------------------------------    
     if LP.scope is not None:
         for i in range(len(LP.scope)):
@@ -25,11 +29,11 @@ def preprocessing(LP):
     
     #加松弛变量
     for i in range(LP.A.shape[0]):
-        if LP.sig >0:
+        if LP.sig[i] >0:
             vec = np.zeros((LP.A.shape[0],1))
             vec[i] = -1.0
             LP.A = np.concatenate((LP.A,vec),axis=1)          
-        elif LP.sig<0:
+        elif LP.sig[i]<0:
             vec = np.zeros((LP.A.shape[0],1))
             vec[i] = 1.0
             LP.A = np.concatenate((LP.A,vec),axis=1)
@@ -44,12 +48,16 @@ def preprocessing(LP):
                 LP.sig[i] = -LP.sig[i]
                 LP.b[i] = -LP.b[i]
                 uv_loc.append((i,j))
-    base_index = np.array(len(uv_loc),np.float)
-
+    base_index = np.zeros((len(uv_loc),1),np.int).squeeze()
+    
+    
     for i,j in uv_loc:
         base_index[i]=j
+        
+    LP.c = np.array(LP.c + [0]*(LP.A.shape[1]-len(LP.c)))
 
-    return LP,base_index
+    
+    return LP,base_index.astype(np.int)
 
 
 
@@ -92,7 +100,7 @@ def CheckBasic(LP):
     
     return base_index
 
-def preprocessing(LP):
+def Artificial(LP):
     
     LP = standardform(LP)
     

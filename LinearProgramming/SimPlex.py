@@ -6,14 +6,14 @@ Created on Sat Sep 21 11:54:56 2019
 """
 import numpy as np
 import copy
-from  BasicFun import preprocessing,phase
+from  BasicFun import Artificial,phase
 
 def simplex(LPP):
     
     LP = copy.copy(LPP)
     
     #preprocessing
-    LP,base_index,artificial_var,ori_var = preprocessing(LP)
+    LP,base_index,artificial_var,ori_var = Artificial(LP)
          
     #判断
     if len(artificial_var):
