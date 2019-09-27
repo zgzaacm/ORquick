@@ -7,6 +7,7 @@ Created on Mon Sep 23 18:24:16 2019
 import numpy as np
 from SimPlex import simplex
 from Dual import primal_dual, dualsimplex
+from Sensitivity_analysis import b_range
 
 
 class LinearProgramming():
@@ -56,15 +57,16 @@ class LinearProgramming():
         self.sig = sig
         self.opt = opt
         self.scope = scope
-        self.base_index = None
-        self.last_A = None
         self.cal = False
         self.ifdual = False
 
+        self.base_index = None
+        self.A_init = None
+        self.b_last = None
     def SimPlex(self):
 
         if self.cal == False:
-            self.opt_sol, self.opt_val, self.base_index , self.last_A = simplex(self)
+            self.opt_sol, self.opt_val, self.base_index, self.A_init, self.b_last = simplex(self)
             self.cal = True
 
         return self.opt_sol, self.opt_val
@@ -119,6 +121,9 @@ class LinearProgramming():
             self.cal = True
         return self.opt_sol, self.opt_val
 
+    def b_range(self):
+        return b_range(self) + self.b.reshape(len(self.b), 1)
+
 
 if __name__ == '__main__':
     #
@@ -147,9 +152,25 @@ if __name__ == '__main__':
     #    c=[15,24,5]
     #    sig=[1,1]
     #    opt='min'
-    A = [[1, 0, 3], [0, 2, 2]]
-    b = [3, 5]
-    c = [4, 12, 18]
-    sig = [1, 1]
-    opt = 'min'
+    # A = [[1, 0, 3], [0, 2, 2]]
+    # b = [3, 5]
+    # c = [4, 12, 18]
+    # sig = [1, 1]
+    # opt = 'min'
+
+    # A = [[0, 5],
+    #      [6, 2],
+    #      [1, 1]]
+    # b = [15, 24, 5]
+    # c = [2, 1]
+    # sig = [-1, -1, -1]
+    # opt = 'max'
+
+    A = [[1,3],
+         [2,1],
+         [1,1]]
+    b = [90,80,45]
+    c=[5,4]
+    sig = [-1,-1,-1]
+    opt = 'max'
     llp = LinearProgramming(A, b, c, sig, opt=opt)
