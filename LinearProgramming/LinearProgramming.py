@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from SimPlex import simplex
 from Dual import primal_dual, dualsimplex
 from Sensitivity_analysis import b_range
+
+
 # from Sensitivity_analysis import b_sensitivity
 
 
@@ -65,6 +67,7 @@ class LinearProgramming():
         self.base_index = None
         self.A_init = None
         self.b_last = None
+
     def SimPlex(self):
 
         if self.cal == False:
@@ -130,6 +133,7 @@ class LinearProgramming():
     #
     #     return b_sensitivity(self,key,start = 0,end = None,split_scale=100,plot =True)
 
+
 if __name__ == '__main__':
     #
     #    A=[[1,0,0,0.25,-8,-1,9],[0,1,0,0.5,-12,-0.5,3],[0,0,-1,0,0,-1,0]]
@@ -171,11 +175,11 @@ if __name__ == '__main__':
     # sig = [-1, -1, -1]
     # opt = 'max'
 
-    A = [[1,3],
-         [2,1],
-         [1,1]]
-    b = [90,80,45]
-    c=[5,4]
-    sig = [-1,-1,-1]
+    A = [[1, 3],
+         [2, 1],
+         [1, 1]]
+    b = [90, 80, 45]
+    c = [5, 4]
+    sig = [-1, -1, -1]
     opt = 'max'
     llp = LinearProgramming(A, b, c, sig, opt=opt)
