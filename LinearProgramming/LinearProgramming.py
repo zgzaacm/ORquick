@@ -5,10 +5,11 @@ Created on Mon Sep 23 18:24:16 2019
 @author: Dell
 """
 import numpy as np
+import matplotlib.pyplot as plt
 from SimPlex import simplex
 from Dual import primal_dual, dualsimplex
 from Sensitivity_analysis import b_range
-from Sensitivity_analysis import b_opt_val
+# from Sensitivity_analysis import b_sensitivity
 
 
 class LinearProgramming():
@@ -124,9 +125,10 @@ class LinearProgramming():
 
     def b_range(self):
         return b_range(self) + self.b.reshape(len(self.b), 1)
-    def b_k_opt_val(self,key,start = 0,end = None,split_scale=100,plot =True):
 
-        return b_opt_val(self,key,start = 0,end = None,split_scale=100,plot =True)
+    # def b_k_opt_val(self,key,start = 0,end = None,split_scale=100,plot =True):
+    #
+    #     return b_sensitivity(self,key,start = 0,end = None,split_scale=100,plot =True)
 
 if __name__ == '__main__':
     #

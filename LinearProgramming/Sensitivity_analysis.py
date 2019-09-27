@@ -39,8 +39,8 @@ def b_range(llp):
     return np.array(l)
 
 
-def b_opt_val(llp, key, start=0, end=None, split_scale=100, plot=True):
-    #TODO 待调试修改
+def b_sensitivity(llp, key, start=0, end=None, split_scale=100, plot=True):
+    # TODO 待调试修改
     lp = copy.deepcopy(llp)
     b = lp.b
     if end is None:
