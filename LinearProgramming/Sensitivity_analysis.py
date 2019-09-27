@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import copy
 
 
 def b_var_range(llp, key):
@@ -35,3 +37,20 @@ def b_range(llp):
         l.append(b_var_range(llp, i))
 
     return np.array(l)
+
+
+def b_opt_val(llp, key, start=0, end=None, split_scale=100, plot=True):
+    #TODO 待调试修改
+    lp = copy.deepcopy(llp)
+    b = lp.b
+    if end is None:
+        end = 2 * b
+
+    X = np.linspace(start, end, split_scale)
+    Y = np.zeros_like(X)
+    for i in range(len(X)):
+        lp.b[key] = X[i]
+        Y[i] = lp.SimPlex[1]
+
+    plt.plot(X, Y, '.r')
+    return zip(X, Y)
