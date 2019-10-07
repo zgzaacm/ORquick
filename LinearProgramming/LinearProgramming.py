@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from SimPlex import simplex
 from Dual import primal_dual, dualsimplex
-from Sensitivity_analysis import b_range,b_sensitivity,c_sensitivity,var_2_sensitivity_
+from Sensitivity_analysis import b_range, b_sensitivity, c_sensitivity, var_2_sensitivity_
 
 
 class LinearProgramming():
@@ -126,14 +126,17 @@ class LinearProgramming():
     def b_range(self):
         return b_range(self) + self.b.reshape(len(self.b), 1)
 
-    def b_k_opt_val(self,key,start = 0,end = None,split_scale=20,plot = False):
-        return b_sensitivity(self,key,start = start,end = end,split_scale=split_scale,plot =plot)
+    def b_k_opt_val(self, key, start=0, end=None, split_scale=20, plot=False):
+        return b_sensitivity(self, key, start=start, end=end, split_scale=split_scale, plot=plot)
 
-    def c_k_opt_val(self,key,start = 0,end = None,split_scale=20,plot = False):
-        return c_sensitivity(self,key,start = start,end = end,split_scale=split_scale,plot =plot)
-    def var_2_sensitivity(self,var1,key1,var2,key2,end1=None,end2=None):
-        
-        var_2_sensitivity_(llp,var1,key1,var2,key2,end1,end2)
+    def c_k_opt_val(self, key, start=0, end=None, split_scale=20, plot=False):
+        return c_sensitivity(self, key, start=start, end=end, split_scale=split_scale, plot=plot)
+
+    def var_2_sensitivity(self, var1, key1, var2, key2, end1=None, end2=None):
+
+        var_2_sensitivity_(llp, var1, key1, var2, key2, end1, end2)
+
+
 if __name__ == '__main__':
     #
     #    A=[[1,0,0,0.25,-8,-1,9],[0,1,0,0.5,-12,-0.5,3],[0,0,-1,0,0,-1,0]]
@@ -183,13 +186,8 @@ if __name__ == '__main__':
     sig = [-1, -1, -1]
     opt = 'max'
     llp = LinearProgramming(A, b, c, sig, opt=opt)
-    
-    llp.b_k_opt_val(2,plot=True)
-    llp.c_k_opt_val(1,plot=True)
-    
-    llp.var_2_sensitivity('c',0,'b',1)
 
-    
-    
-    
-    
+    llp.b_k_opt_val(2, plot=True)
+    llp.c_k_opt_val(1, plot=True)
+
+    llp.var_2_sensitivity('c', 0, 'b', 1)

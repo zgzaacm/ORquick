@@ -27,7 +27,7 @@ def simplex(LPP):
 
         # phase 2
         if base_index is None:
-            return None * 5
+            return [None] * 5
 
         # -----------------------------------------------------
         for i in range(len(base_index)):
