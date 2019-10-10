@@ -1,5 +1,13 @@
 import numpy as np
 
+
+
+
+
+
+
+
+
 A_ = [[7, 5, 9, 8, 11],
       [9, 12, 7, 11, 9],
       [8, 5, 4, 6, 9],
@@ -22,11 +30,43 @@ while True:
     zeros = np.argwhere(A == 0)
     d_zeros = zeros[0].reshape(1, 2)
     nd_zeros = np.array([], dtype=np.int).reshape(0, 2)
-    for zero in zeros[1:]:
-        if zero[0] not in d_zeros[:, 0] and zero[1] not in d_zeros[:, 1]:
-            d_zeros = np.concatenate((d_zeros, zero.reshape(1, 2)), axis=0)
+    # -----------------------------------------------------
+    # for zero in zeros[1:]:
+    #     if zero[0] not in d_zeros[:, 0] and zero[1] not in d_zeros[:, 1]:
+    #         d_zeros = np.concatenate((d_zeros, zero.reshape(1, 2)), axis=0)
+    #     else:
+    #         nd_zeros = np.concatenate((nd_zeros, zero.reshape(1, 2)), axis=0)
+    num = np.zeros((1, zeros.shape[0]), dtype=np.int).squeeze()
+
+    p = 0
+    n = 0
+    while p < zeros.shape[0] - 1:
+
+        if zeros[p][0] != zeros[p + 1][0]:
+            for i in range(p - n, p + 1):
+                num[i] = n + 1
         else:
-            nd_zeros = np.concatenate((nd_zeros, zero.reshape(1, 2)), axis=0)
+            n += 1
+        p += 1
+
+    zeros = zeros[num.argsort()]
+    bool_d_zeros = np.full_like(num, True, dtype=np.bool)
+
+    for i in range(zeros.shape[0]):
+        zero = zeros[i]
+        if bool_d_zeros[i]:
+            bool_ind = zero[0] in zeros[i + 1:, 0] or zero[1] in zeros[i + 1:, 1]
+            bool_d_zeros[i + 1:][bool_ind] = False
+
+
+    d_zeros = zeros[bool_d_zeros == True]
+    nd_zeros = zeros[bool_d_zeros == False]
+
+    print(A)
+    print(d_zeros)
+    print(nd_zeros)
+        # -----------------------------------------------------
+
     if d_zeros.shape[0] == A.shape[0]:
         break
     marked_row = [i for i in range(len(A)) if i not in d_zeros[:, 0]]
@@ -54,7 +94,5 @@ while True:
     min_ = A[unlined_row][:, unlined_col].min()
     A[:, unlined_col] = A[:, unlined_col] - min_
     A[lined_row] += min_
-    print(A)
-
 
 print(d_zeros)
